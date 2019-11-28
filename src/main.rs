@@ -7,5 +7,5 @@ use cli::Calculator;
 
 fn main() {
     let calculator = Calculator::new_from_cli().calculate_payments();
-    dbg!(calculator);
+    println!("{}", calculator);
 }

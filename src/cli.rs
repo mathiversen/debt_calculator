@@ -6,7 +6,7 @@ use std::fmt;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "my finance")]
+#[structopt(name = "debt calculator")]
 pub struct Calculator {
     #[structopt(short, long)]
     pub interest: f32,
@@ -55,14 +55,14 @@ impl fmt::Display for Calculator {
             "\nMonths: {}\n\
              Years: {}\n\
              Total interest cost: {}\n\
-             Total interest NPV: {}\n\
              Total installments: {}\n\
+             Total interest NPV: {}\n\
              Total installments NPV: {}",
             self.get_months(),
             self.get_years(),
             kr.format(self.get_total_interest()),
-            kr.format(self.get_total_interest_npv()),
             kr.format(self.get_total_installments()),
+            kr.format(self.get_total_interest_npv()),
             kr.format(self.get_total_installments_npv())
         )
     }
