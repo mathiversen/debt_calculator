@@ -46,26 +46,19 @@ impl fmt::Display for Calculator {
             .build()
             .expect("Failed to create currency formatting.");
 
-        write!(f, "Months: {}\n", self.get_months()).unwrap();
-        write!(f, "Years: {}\n", self.get_years()).unwrap();
         write!(
-            f,
-            "Total interest cost: {}\n",
-            kr.format(self.get_total_interest())
-        ).unwrap();
-        write!(
-            f,
-            "Total interest NPV: {}\n",
-            kr.format(self.get_total_interest_npv())
-        ).unwrap();
-        write!(
-            f,
-            "Total installments: {}\n",
-            kr.format(self.get_total_installments())
-        ).unwrap();
-        write!(
-            f,
-            "Total installments NPV: {}",
+            f, 
+            "\nMonths: {}\n\
+            Years: {}\n\
+            Total interest cost: {}\n\
+            Total interest NPV: {}\n\
+            Total installments: {}\n\
+            Total installments NPV: {}",
+            self.get_months(),
+            self.get_years(),
+            kr.format(self.get_total_interest()),
+            kr.format(self.get_total_interest_npv()),
+            kr.format(self.get_total_installments()),
             kr.format(self.get_total_installments_npv())
         )
     }
@@ -140,10 +133,10 @@ impl Calculator {
                         / (1.0 + self.monthly_discount_rate).powf(index as f32 + 1.0))
             })
     }
-    pub fn get_months(&self) -> usize {
-        self.payments.len()
+    pub fn get_months(&self) -> f32 {
+        self.payments.len() as f32
     }
-    pub fn get_years(&self) -> usize {
-        self.get_months() / 12
+    pub fn get_years(&self) -> f32 {
+        self.get_months() / 12 as f32
     }
 }
