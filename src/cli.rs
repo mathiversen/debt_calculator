@@ -1,7 +1,9 @@
 use crate::helpers::interest_to_monthly;
-use structopt::StructOpt;
-use std::fmt;
 use crate::lotus::LotusBuilder;
+use chrono::prelude::*;
+use chrono::Duration;
+use std::fmt;
+use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "my finance")]
@@ -27,10 +29,12 @@ pub struct Calculator {
 
 #[derive(Debug)]
 pub struct Payment {
-    pub month: u32,
-    pub interest: f32,
     pub amortization: u32,
+    pub id: u32,
     pub interest_npv: f32,
+    pub interest: f32,
+    pub month: u32,
+    pub year: i32,
 }
 
 impl fmt::Display for Calculator {
@@ -47,13 +51,13 @@ impl fmt::Display for Calculator {
             .expect("Failed to create currency formatting.");
 
         write!(
-            f, 
+            f,
             "\nMonths: {}\n\
-            Years: {}\n\
-            Total interest cost: {}\n\
-            Total interest NPV: {}\n\
-            Total installments: {}\n\
-            Total installments NPV: {}",
+             Years: {}\n\
+             Total interest cost: {}\n\
+             Total interest NPV: {}\n\
+             Total installments: {}\n\
+             Total installments NPV: {}",
             self.get_months(),
             self.get_years(),
             kr.format(self.get_total_interest()),
@@ -67,10 +71,10 @@ impl fmt::Display for Calculator {
 impl Calculator {
     pub fn new(interest: f32, discount_rate: f32, loan: u32, amortization: u32) -> Self {
         Calculator {
-            interest,
-            discount_rate,
-            loan,
             amortization,
+            discount_rate,
+            interest,
+            loan,
             monthly_discount_rate: interest_to_monthly(discount_rate),
             payments: vec![],
         }
@@ -84,6 +88,7 @@ impl Calculator {
         self.payments = vec![];
         let mut current_loan = self.loan;
         let mut index = 1;
+        let mut year = Utc::now();
 
         while current_loan > 0 {
             let interest = current_loan as f32 * self.interest / 12.0;
@@ -93,13 +98,18 @@ impl Calculator {
                 self.amortization
             };
             self.payments.push(Payment {
-                month: index % 12,
-                interest,
                 amortization: curr_amortization,
+                id: index,
                 interest_npv: (interest / (1.0 + self.discount_rate).powf(index as f32 + 1.0)),
+                interest,
+                month: index % 12,
+                year: year.date().year(),
             });
             current_loan -= curr_amortization;
             index += 1;
+            if index % 12 == 1 {
+                year = year + Duration::days(365);
+            }
         }
         self
     }
@@ -137,6 +147,6 @@ impl Calculator {
         self.payments.len() as f32
     }
     pub fn get_years(&self) -> f32 {
-        self.get_months() / 12 as f32
+        self.get_months() / 12_f32
     }
 }
